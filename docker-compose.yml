@@ -1,0 +1,38 @@
+services:
+  identityservice.api:
+    image: ${DOCKER_REGISTRY-}identityserviceapi
+    build:
+      context: .
+      dockerfile: src/Services/IdentityService/IdentityService.API/Dockerfile
+    networks:
+     - microservice-network
+
+  tirexshopapigateway:
+    image: ${DOCKER_REGISTRY-}tirexshopapigateway
+    build:
+      context: .
+      dockerfile: src/WebApps/TirexShopApiGateway/TirexShopApiGateway/Dockerfile
+    networks:
+     - microservice-network
+
+  identity_db:
+   image: postgres:latest
+   container_name: identity_db
+   ports: 
+    - "5434:5432"
+   environment:
+    POSTGRES_USER: postgres
+    POSTGRES_PASSWORD: 22848
+    POSTGRES_DB: identity_db
+   volumes: 
+    - postgres-data:/var/lib/postgresql/data
+   networks:
+    - microservice-network
+
+volumes:
+ postgres-data:
+ 
+networks:
+  microservice-network:
+    driver: bridge
+
