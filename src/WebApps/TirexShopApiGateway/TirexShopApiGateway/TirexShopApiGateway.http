@@ -1,6 +1,0 @@
-@TirexShopApiGateway_HostAddress = http://localhost:5255
-
-GET {{TirexShopApiGateway_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###

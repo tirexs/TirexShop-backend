@@ -4,8 +4,8 @@
       "commandName": "DockerCompose",
       "commandVersion": "1.0",
       "serviceActions": {
-        "identityservice.api": "StartDebugging",
-        "tirexshopapigateway": "StartDebugging"
+        "tirexshop.api": "StartDebugging",
+        "identityservice.api": "StartDebugging"
       }
     }
   }

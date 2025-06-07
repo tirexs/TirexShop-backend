@@ -1,7 +1,5 @@
-using Autofac;
-using Autofac.Extensions.DependencyInjection;
-using IdentityService.API.Extensions;
-using IdentityService.API.IoC;
+using Ocelot.DependencyInjection;
+using Ocelot.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,18 +9,9 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-
-
-//Autofac
-builder.Host.UseServiceProviderFactory(new AutofacServiceProviderFactory())
-                .ConfigureContainer<ContainerBuilder>(builder =>
-                {
-                    builder.RegisterModule(new ApplicationServiceRegistration());
-                });
-
-builder.Services.AddApplication()
-    .AddInfrastructure(builder.Configuration);
-
+// Добавляем поддержку Ocelot
+builder.Configuration.AddJsonFile("ocelot.json", optional: false, reloadOnChange: true);
+builder.Services.AddOcelot();
 
 builder.Services.AddCors(opt =>
 {
@@ -36,7 +25,6 @@ builder.Services.AddCors(opt =>
                .AllowCredentials());
 });
 
-
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -48,6 +36,9 @@ if (app.Environment.IsDevelopment())
 
 app.UseCors("AllowAll");
 app.UseAuthorization();
-app.UseAuthentication();
 app.MapControllers();
+
+// Добавляем middleware Ocelot
+await app.UseOcelot();
+
 app.Run();
