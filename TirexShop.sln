@@ -25,6 +25,20 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TirexShop.API", "src\WebApp
 EndProject
 Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{F78AF4B7-61B5-4B57-BF6A-D0B488438FF3}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Infrastructure", "Infrastructure", "{1A6C71E1-D14F-48F4-90EC-93C6B480828B}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Monitoring", "Monitoring", "{F5915FE3-1314-4A0B-9E8E-A838AFB0DD29}"
+	ProjectSection(SolutionItems) = preProject
+		Infrastructure\Monitoring\prometheus.yml = Infrastructure\Monitoring\prometheus.yml
+		Infrastructure\Monitoring\promtail-config.yaml = Infrastructure\Monitoring\promtail-config.yaml
+		Infrastructure\Monitoring\loki-config.yaml = Infrastructure\Monitoring\loki-config.yaml
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "grafana", "grafana", "{4574FF7D-F527-410A-A860-682E125791F9}"
+	ProjectSection(SolutionItems) = preProject
+		Infrastructure\Monitoring\grafana\datasources.yaml = Infrastructure\Monitoring\grafana\datasources.yaml
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -69,6 +83,8 @@ Global
 		{6134B4E0-13CF-4BF6-BDD5-62C89CD6CB37} = {F1F87728-E5A6-4088-82A1-4CF29D625887}
 		{9230CEC3-0FA6-471A-AFF3-33C1140D715E} = {A93FC328-E2D9-4B5B-B6EE-904B20529EAA}
 		{E1113C55-2655-4A2E-9D32-8267492C9C7D} = {9230CEC3-0FA6-471A-AFF3-33C1140D715E}
+		{F5915FE3-1314-4A0B-9E8E-A838AFB0DD29} = {1A6C71E1-D14F-48F4-90EC-93C6B480828B}
+		{4574FF7D-F527-410A-A860-682E125791F9} = {F5915FE3-1314-4A0B-9E8E-A838AFB0DD29}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {CD1A27B3-E8D8-41D1-8DAA-9100BDDA1C85}

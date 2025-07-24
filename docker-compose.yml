@@ -20,7 +20,62 @@ services:
       dockerfile: src/Services/IdentityService/IdentityService.API/Dockerfile
     networks:
      - tirexshop-network
-
+  
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./Infrastructure/Monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus-data:/prometheus
+    networks:
+      - tirexshop-network
+  
+  promtail:
+    image: grafana/promtail:latest
+    container_name: promtail
+    ports:
+      - "4000:4000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/lib/docker.sock:/var/run/docker.sock
+      - ./Infrastructure/Monitoring/promtail-config.yaml:/etc/promtail/config.yml
+    command:
+      - -config.file=/etc/promtail/config.yml
+    networks:
+      - tirexshop-network
+  
+  loki:
+    image: grafana/loki:latest
+    container_name: loki
+    ports:
+      - "4001:3100"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - ./Infrastructure/Monitoring/loki-config.yaml:/etc/loki/local-config.yaml
+    networks:
+      - tirexshop-network
+  
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "4002:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - ./Infrastructure/Monitoring/grafana/datasources.yaml:/etc/grafana/provisioning/datasources/datasources.yaml
+      - grafana-data:/var/lib/grafana
+    networks:
+      - tirexshop-network
+    
   
 
   identity_db:
@@ -39,6 +94,8 @@ services:
 
 volumes:
  postgres-data:
+ grafana-data:
+ prometheus-data:
  
 networks:
   tirexshop-network:

@@ -2,8 +2,17 @@ using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using IdentityService.API.Extensions;
 using IdentityService.API.IoC;
+using Prometheus;
+using Serilog;
+using Serilog.Sinks.Grafana.Loki;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Host.UseSerilog((ctx, lc) =>
+    lc.WriteTo.Console()
+        .Enrich.FromLogContext()
+        .Enrich.WithProperty("Service", "IdentityService"));
+
 
 // Add services to the container.
 
@@ -50,4 +59,6 @@ app.UseCors("AllowAll");
 app.UseAuthorization();
 app.UseAuthentication();
 app.MapControllers();
+app.UseHttpMetrics();
+app.MapMetrics(); 
 app.Run();

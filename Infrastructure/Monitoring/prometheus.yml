@@ -1,0 +1,11 @@
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: 'ApiGateway'
+    static_configs:
+      - targets: ['ApiGateway:8080']
+
+  - job_name: 'IdentityService'
+    static_configs:
+      - targets: ['IdentityService:8080']
