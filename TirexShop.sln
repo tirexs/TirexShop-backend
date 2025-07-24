@@ -37,6 +37,12 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "grafana", "grafana", "{4574FF7D-F527-410A-A860-682E125791F9}"
 	ProjectSection(SolutionItems) = preProject
 		Infrastructure\Monitoring\grafana\datasources.yaml = Infrastructure\Monitoring\grafana\datasources.yaml
+		Infrastructure\Monitoring\grafana\dashboards.yaml = Infrastructure\Monitoring\grafana\dashboards.yaml
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "dashboards", "dashboards", "{D745E1C2-A5B1-43B0-968D-2528E5103161}"
+	ProjectSection(SolutionItems) = preProject
+		Infrastructure\Monitoring\grafana\dashboards\MyDashboard.json = Infrastructure\Monitoring\grafana\dashboards\MyDashboard.json
 	EndProjectSection
 EndProject
 Global
@@ -85,6 +91,7 @@ Global
 		{E1113C55-2655-4A2E-9D32-8267492C9C7D} = {9230CEC3-0FA6-471A-AFF3-33C1140D715E}
 		{F5915FE3-1314-4A0B-9E8E-A838AFB0DD29} = {1A6C71E1-D14F-48F4-90EC-93C6B480828B}
 		{4574FF7D-F527-410A-A860-682E125791F9} = {F5915FE3-1314-4A0B-9E8E-A838AFB0DD29}
+		{D745E1C2-A5B1-43B0-968D-2528E5103161} = {4574FF7D-F527-410A-A860-682E125791F9}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {CD1A27B3-E8D8-41D1-8DAA-9100BDDA1C85}
