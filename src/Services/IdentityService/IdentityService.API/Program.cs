@@ -4,15 +4,20 @@ using IdentityService.API.Extensions;
 using IdentityService.API.IoC;
 using Prometheus;
 using Serilog;
+using Serilog.Formatting.Compact;
 using Serilog.Sinks.Grafana.Loki;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Host.UseSerilog((ctx, lc) =>
-    lc.WriteTo.Console()
-        .Enrich.FromLogContext()
-        .Enrich.WithProperty("Service", "IdentityService"));
 
+builder.Host.UseSerilog((ctx, config) =>
+{
+    config
+        .Enrich.FromLogContext()
+        .Enrich.WithProperty("Service", "IdentityService")
+        .Enrich.WithProperty("Environment", ctx.HostingEnvironment.EnvironmentName)
+        .WriteTo.Console(new RenderedCompactJsonFormatter()); // <-- JSON формат для stdout
+});
 
 // Add services to the container.
 
@@ -60,5 +65,18 @@ app.UseAuthorization();
 app.UseAuthentication();
 app.MapControllers();
 app.UseHttpMetrics();
-app.MapMetrics(); 
-app.Run();
+app.MapMetrics();
+
+try
+{
+    Log.Information("Starting up");
+    app.Run();   
+}
+catch (Exception ex)
+{
+    Log.Fatal(ex, "Application start-up failed");
+}
+finally
+{
+    Log.CloseAndFlush();
+}
