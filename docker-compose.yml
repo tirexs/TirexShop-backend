@@ -4,22 +4,30 @@ services:
     container_name: ApiGateway
     ports: 
      - "5000:8080"
+    expose:
+      - "9464"
     build:
       context: .
       dockerfile: src/WebApps/TirexShopApiGateway/TirexShop.API/Dockerfile
     networks:
      - tirexshop-network
+    depends_on:
+      - alloy
  
   identityservice.api:
     image: ${DOCKER_REGISTRY-}identityserviceapi
     container_name: IdentityService
     ports: 
      - "5001:8080"
+    expose:
+      - "9464"
     build:
       context: .
       dockerfile: src/Services/IdentityService/IdentityService.API/Dockerfile
     networks:
      - tirexshop-network
+    depends_on:
+      - alloy
   
   prometheus:
     image: prom/prometheus:latest
@@ -27,27 +35,47 @@ services:
     ports:
       - "9090:9090"
     volumes:
-      - ./Infrastructure/Monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
       - prometheus-data:/prometheus
+    command:
+      --web.enable-remote-write-receiver
+      --config.file=/etc/prometheus/prometheus.yml
     networks:
       - tirexshop-network
   
-  promtail:
-    image: grafana/promtail:latest
-    container_name: promtail
+  tempo:
+    image: grafana/tempo
+    container_name: tempo
     ports:
-      - "4000:4000"
-    environment:
-      - GF_SECURITY_ADMIN_USER=admin
-      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - "4327:4317"
+      - "3200:3200"
     volumes:
-      - /var/lib/docker/containers:/var/lib/docker/containers:ro
-      - /var/lib/docker.sock:/var/run/docker.sock
-      - ./Infrastructure/Monitoring/promtail-config.yaml:/etc/promtail/config.yml
-    command:
-      - -config.file=/etc/promtail/config.yml
+      - tempo-data:/var/tempo
+      - ./Infrastructure/Monitoring/tempo/tempo.yaml:/etc/tempo.yaml
+    command: ["-config.file=/etc/tempo.yaml"]
     networks:
       - tirexshop-network
+      
+      
+  alloy:
+    image: grafana/alloy:latest
+    container_name: alloy
+    ports:
+      - 12345:12345
+      - 4317:4317
+      - 4318:4318
+    volumes:
+      - ./Infrastructure/Monitoring/alloy/config.alloy:/etc/alloy/config.alloy
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /dev/disk/:/dev/disk:ro
+    command:
+      run --server.http.listen-addr=0.0.0.0:12345 --storage.path=/var/lib/alloy/data /etc/alloy/config.alloy
+    networks:
+      - tirexshop-network
+  
   
   loki:
     image: grafana/loki:latest
@@ -59,6 +87,9 @@ services:
       - GF_SECURITY_ADMIN_PASSWORD=admin
     volumes:
       - ./Infrastructure/Monitoring/loki-config.yaml:/etc/loki/local-config.yaml
+      - loki-data:/loki
+    command:
+      -config.file=/etc/loki/local-config.yaml
     networks:
       - tirexshop-network
   
@@ -108,8 +139,10 @@ services:
 
 volumes:
  postgres-data:
+ loki-data:
  grafana-data:
  prometheus-data:
+ tempo-data:
  
 networks:
   tirexshop-network:

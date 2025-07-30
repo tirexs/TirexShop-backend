@@ -29,9 +29,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Infrastructure", "Infrastru
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Monitoring", "Monitoring", "{F5915FE3-1314-4A0B-9E8E-A838AFB0DD29}"
 	ProjectSection(SolutionItems) = preProject
-		Infrastructure\Monitoring\prometheus.yml = Infrastructure\Monitoring\prometheus.yml
 		Infrastructure\Monitoring\promtail-config.yaml = Infrastructure\Monitoring\promtail-config.yaml
 		Infrastructure\Monitoring\loki-config.yaml = Infrastructure\Monitoring\loki-config.yaml
+		Infrastructure\Monitoring\alloy\config.alloy = Infrastructure\Monitoring\alloy\config.alloy
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "grafana", "grafana", "{4574FF7D-F527-410A-A860-682E125791F9}"

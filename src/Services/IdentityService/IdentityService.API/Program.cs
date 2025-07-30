@@ -2,20 +2,23 @@ using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using IdentityService.API.Extensions;
 using IdentityService.API.IoC;
-using Prometheus;
+using OpenTelemetry.Exporter;
+using OpenTelemetry.Metrics;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
 using Serilog;
 using Serilog.Formatting.Compact;
-using Serilog.Sinks.Grafana.Loki;
 
 var builder = WebApplication.CreateBuilder(args);
-
+var serviceName = "IdentityService";
+var environment = builder.Environment.EnvironmentName;
 
 builder.Host.UseSerilog((ctx, config) =>
 {
     config
         .Enrich.FromLogContext()
-        .Enrich.WithProperty("Service", "IdentityService")
-        .Enrich.WithProperty("Environment", ctx.HostingEnvironment.EnvironmentName)
+        .Enrich.WithProperty("Service", serviceName)
+        .Enrich.WithProperty("Environment", environment)
         .WriteTo.Console(new RenderedCompactJsonFormatter()); // <-- JSON формат для stdout
 });
 
@@ -50,6 +53,40 @@ builder.Services.AddCors(opt =>
                .AllowCredentials());
 });
 
+// OpenTelemetry Resource (used by all signals: metrics, tracing)
+var resourceBuilder = ResourceBuilder.CreateDefault()
+    .AddService(serviceName)
+    .AddEnvironmentVariableDetector();
+
+// Add OpenTelemetry
+builder.Services.AddOpenTelemetry()
+    .ConfigureResource(b => b.AddService(serviceName))
+    .WithMetrics(metrics =>
+    {
+        metrics
+            .SetResourceBuilder(resourceBuilder)
+            .AddAspNetCoreInstrumentation()
+            .AddHttpClientInstrumentation()
+            .AddRuntimeInstrumentation()
+            .AddProcessInstrumentation()
+            .AddOtlpExporter(o =>
+            {
+                o.Endpoint = new Uri("http://alloy:4317"); // или alloy:4318 для HTTP
+                o.Protocol = OtlpExportProtocol.Grpc;
+            });
+    })
+    .WithTracing(tracing =>
+    {
+        tracing
+            .SetResourceBuilder(resourceBuilder)
+            .AddAspNetCoreInstrumentation()
+            .AddHttpClientInstrumentation()
+            .AddOtlpExporter(o =>
+            {
+                o.Endpoint = new Uri("http://alloy:4317"); // или alloy:4318 для HTTP
+                o.Protocol = OtlpExportProtocol.Grpc;
+            });
+    });
 
 var app = builder.Build();
 
@@ -64,8 +101,6 @@ app.UseCors("AllowAll");
 app.UseAuthorization();
 app.UseAuthentication();
 app.MapControllers();
-app.UseHttpMetrics();
-app.MapMetrics();
 
 try
 {
