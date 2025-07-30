@@ -9,6 +9,9 @@ prometheus.exporter.cadvisor "example" {
   storage_duration = "5m"
 }
 
+livedebugging {
+  enabled = true
+}
 
 // Configure a prometheus.scrape component to collect cadvisor metrics.
 prometheus.scrape "scraper" {

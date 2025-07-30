@@ -43,6 +43,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "dashboards", "dashboards", "{D745E1C2-A5B1-43B0-968D-2528E5103161}"
 	ProjectSection(SolutionItems) = preProject
 		Infrastructure\Monitoring\grafana\dashboards\MyDashboard.json = Infrastructure\Monitoring\grafana\dashboards\MyDashboard.json
+		Infrastructure\Monitoring\grafana\dashboards\metricsDashboard.json = Infrastructure\Monitoring\grafana\dashboards\metricsDashboard.json
 	EndProjectSection
 EndProject
 Global
