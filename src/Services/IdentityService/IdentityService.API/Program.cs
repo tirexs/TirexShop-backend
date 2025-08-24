@@ -2,25 +2,15 @@ using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using IdentityService.API.Extensions;
 using IdentityService.API.IoC;
-using OpenTelemetry.Exporter;
-using OpenTelemetry.Metrics;
-using OpenTelemetry.Resources;
-using OpenTelemetry.Trace;
 using Serilog;
-using Serilog.Formatting.Compact;
+using ServiceDefaults;
 
 var builder = WebApplication.CreateBuilder(args);
 var serviceName = "IdentityService";
 var environment = builder.Environment.EnvironmentName;
 
-builder.Host.UseSerilog((ctx, config) =>
-{
-    config
-        .Enrich.FromLogContext()
-        .Enrich.WithProperty("Service", serviceName)
-        .Enrich.WithProperty("Environment", environment)
-        .WriteTo.Console(new RenderedCompactJsonFormatter()); // <-- JSON формат для stdout
-});
+
+builder.Host.AddLogging(serviceName, environment);
 
 // Add services to the container.
 
@@ -40,53 +30,8 @@ builder.Host.UseServiceProviderFactory(new AutofacServiceProviderFactory())
 builder.Services.AddApplication()
     .AddInfrastructure(builder.Configuration);
 
-
-builder.Services.AddCors(opt =>
-{
-    opt.AddPolicy("AllowAll", builder =>
-        builder.WithOrigins(new string[]{
-            "http://localhost:4200",
-            "http://localhost:3000",
-        })
-               .AllowAnyMethod()
-               .AllowAnyHeader()
-               .AllowCredentials());
-});
-
-// OpenTelemetry Resource (used by all signals: metrics, tracing)
-var resourceBuilder = ResourceBuilder.CreateDefault()
-    .AddService(serviceName)
-    .AddEnvironmentVariableDetector();
-
-// Add OpenTelemetry
-builder.Services.AddOpenTelemetry()
-    .ConfigureResource(b => b.AddService(serviceName))
-    .WithMetrics(metrics =>
-    {
-        metrics
-            .SetResourceBuilder(resourceBuilder)
-            .AddAspNetCoreInstrumentation()
-            .AddHttpClientInstrumentation()
-            .AddRuntimeInstrumentation()
-            .AddProcessInstrumentation()
-            .AddOtlpExporter(o =>
-            {
-                o.Endpoint = new Uri("http://alloy:4317"); // или alloy:4318 для HTTP
-                o.Protocol = OtlpExportProtocol.Grpc;
-            });
-    })
-    .WithTracing(tracing =>
-    {
-        tracing
-            .SetResourceBuilder(resourceBuilder)
-            .AddAspNetCoreInstrumentation()
-            .AddHttpClientInstrumentation()
-            .AddOtlpExporter(o =>
-            {
-                o.Endpoint = new Uri("http://alloy:4317"); // или alloy:4318 для HTTP
-                o.Protocol = OtlpExportProtocol.Grpc;
-            });
-    });
+builder.Services.AddCorsSettings();
+builder.Services.AddTelemetry(serviceName);
 
 var app = builder.Build();
 
